@@ -20,14 +20,45 @@ class RandomWordsState extends StatefulWidget {
 
 class _RandomWordsStateState extends State<RandomWordsState> {
   final List<WordPair> _suggestions = <WordPair>[];
-  final Set<WordPair> _saved= Set<WordPair>();
+  final Set<WordPair> _saved = Set<WordPair>();
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Startup Name Generator'),),
+      appBar: AppBar(
+        title: Text('Startup Name Generator'),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved)
+        ],
+      ),
       body: _buildSuggestions(),
     );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+      final Iterable<ListTile> tiles = _saved.map((WordPair pair) {
+        return ListTile(
+          title: Text(
+            pair.asPascalCase,
+            style: _biggerFont,
+          ),
+        );
+      });
+
+      final List<Widget> divided = ListTile.divideTiles(
+        context: context,
+        tiles: tiles,
+      ).toList();
+      return Scaffold(
+        // Add 6 lines from here...
+        appBar: AppBar(
+          title: Text('Saved Suggestions'),
+        ),
+        body: ListView(children: divided),
+      );
+    }));
   }
 
   Widget _buildSuggestions() {
@@ -47,7 +78,7 @@ class _RandomWordsStateState extends State<RandomWordsState> {
   }
 
   Widget _buildRow(WordPair pair) {
-    final bool alreadysaved= _saved.contains(pair);
+    final bool alreadysaved = _saved.contains(pair);
     return ListTile(
       title: Text(
         pair.asPascalCase,
@@ -55,11 +86,11 @@ class _RandomWordsStateState extends State<RandomWordsState> {
       ),
       trailing: Icon(
         alreadysaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadysaved ? Colors.red :null,
+        color: alreadysaved ? Colors.red : null,
       ),
-      onTap: (){
+      onTap: () {
         setState(() {
-          if(alreadysaved)
+          if (alreadysaved)
             _saved.remove(pair);
           else
             _saved.add(pair);
